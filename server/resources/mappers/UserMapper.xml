@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ficbic.dpeq.mapper.UserMapper">
+    <resultMap id="userWithRolesResultMap" type="com.ficbic.dpeq.pojo.User">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="email" column="email"/>
+        <result property="password" column="password"/>
+        <result property="rememberme" column="rememberme"/>
+        <collection property="roles" ofType="com.ficbic.dpeq.pojo.Role">
+            <id property="id" column="role_id"/>
+            <result property="name" column="name"/>
+            <result property="description" column="description"/>
+            <result property="permissions" column="permissions"/>
+        </collection>
+    </resultMap>
+    <select id="getUserById" resultMap="userWithRolesResultMap">
+        SELECT u.id, u.username, u.email, u.password, u.rememberme, r.id AS role_id, r.name, r.description, r.permissions
+        FROM user u
+        LEFT JOIN user_role_map ur on u.id = ur.user_id
+        LEFT JOIN role r on ur.role_id=r.id
+        WHERE
+        u.id = #{id}
+    </select>
+
+    <select id="getUserByName" resultMap="userWithRolesResultMap">
+        SELECT u.id, u.username, u.email, u.password, u.rememberme, r.id AS role_id, r.name, r.description, r.permissions
+        FROM user u
+        LEFT JOIN user_role_map ur on u.id = ur.user_id
+        LEFT JOIN role r on ur.role_id=r.id
+        WHERE
+        username = #{username}
+    </select>
+
+    <select id="getUsers" resultMap="userWithRolesResultMap">
+        SELECT u.id, u.username, u.email, u.password, u.rememberme, r.id AS role_id, r.name, r.description, r.permissions
+        FROM user u
+        LEFT JOIN user_role_map ur on u.id = ur.user_id
+        LEFT JOIN role r on ur.role_id=r.id
+    </select>
+    <select id="createUser" parameterType="com.ficbic.dpeq.pojo.User">
+        insert into user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="username != null">username,</if>
+            <if test="password != null">password,</if>
+            <if test="email != null">email,</if>
+            <if test="rememberme != null">rememberme,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="username != null">#{username},</if>
+            <if test="password != null">#{password},</if>
+            <if test="email != null">#{email},</if>
+            <if test="rememberme != null">#{rememberme},</if>
+        </trim>
+    </select>
+    <select id="deleteUser">
+        select * from user where username = #{username}
+    </select>
+    <select id="updateUser">
+        select * from user where username = #{username}
+    </select>
+</mapper>
